@@ -93,12 +93,17 @@ const AnimatedRain: React.FC<{ intensity: number }> = ({ intensity }) => {
   useFrame(() => {
     if (!ref.current || intensity < 30) return;
     const posArr = ref.current.geometry.attributes.position.array as Float32Array;
+    const windSpeed = (intensity / 100) * 0.3 + 0.05; // Aggressive drift to LHS
+
     for (let i = 0; i < count; i++) {
-      posArr[i * 3 + 1] -= 0.15 + Math.random() * 0.05;
-      posArr[i * 3] -= 0.02; // wind drift
-      if (posArr[i * 3 + 1] < -2.5) {
+      posArr[i * 3 + 1] -= 0.15 + Math.random() * 0.1; // Fall down
+      posArr[i * 3] -= windSpeed; // Strong wind drift to the left
+
+      // Reset condition: hit ground or went too far left
+      if (posArr[i * 3 + 1] < -2.5 || posArr[i * 3] < -8) {
         posArr[i * 3 + 1] = 6 + Math.random() * 2;
-        posArr[i * 3] = (Math.random() - 0.5) * 12;
+        // Spawn more to the right so they can travel across the screen to the left
+        posArr[i * 3] = 2 + Math.random() * 12;
       }
     }
     ref.current.geometry.attributes.position.needsUpdate = true;
@@ -132,7 +137,14 @@ const Clouds: React.FC<{ isStormy: boolean }> = ({ isStormy }) => {
   const groupRef = useRef<THREE.Group>(null);
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.position.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.5;
+      if (isStormy) {
+        // Fast, stormy drift to the Left-Hand Side
+        const driftX = 8 - (state.clock.elapsedTime * 2.5) % 20;
+        groupRef.current.position.x = driftX;
+      } else {
+        // Gentle sway
+        groupRef.current.position.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.5;
+      }
     }
   });
 
@@ -197,7 +209,7 @@ export const Scene3D: React.FC = () => {
         windPower={windPower}
         isSpeaking={isSpeaking}
         isActive={activeCharacter === 'TREE'}
-        snapped={triggerSnap}
+        snapped={phase === 'SNAP' || phase === 'AFTERMATH'}
         isStormy={isStormy}
       />
 

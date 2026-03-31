@@ -28,9 +28,9 @@ export const Bush3D = forwardRef<THREE.Group, Bush3DProps>(({ windPower, isSpeak
   const bushDarkMaterial = useMemo(() => new THREE.MeshStandardMaterial({
     color: isStormy ? '#1B5E20' : '#388E3C', roughness: 0.9
   }), [isStormy]);
-  const eyeWhiteMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: '#FFFDE7', roughness: 0.2 }), []);
-  const pupilMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: '#1A1A1A', roughness: 0.1, metalness: 0.4 }), []);
-  const pupilHighlight = useMemo(() => new THREE.MeshStandardMaterial({ color: '#FFFFFF', emissive: '#FFFFFF', emissiveIntensity: 0.5 }), []);
+  const eyeWhiteMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: '#FFFFFF' }), []);
+  const pupilMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: '#000000' }), []);
+  const pupilHighlight = useMemo(() => new THREE.MeshBasicMaterial({ color: '#FFFFFF' }), []);
   const mouthMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: '#D81B60', roughness: 0.3 }), []);
   const blushMaterial = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#F48FB1', transparent: true, opacity: 0.4, side: THREE.DoubleSide
@@ -56,17 +56,18 @@ export const Bush3D = forwardRef<THREE.Group, Bush3DProps>(({ windPower, isSpeak
     groupRef.current.position.x = 2.2 + Math.sin(t * 0.8) * windStrength * 0.12;
     groupRef.current.position.y = -1.6;
 
-    // Cute lip sync
+    // Proper cute lip sync with jitter
     if (mouthRef.current) {
       if (isSpeaking && isActive) {
-        const o = Math.abs(Math.sin(t * 13)) * 0.6 + 0.2;
-        const e = Math.abs(Math.cos(t * 9)) * 0.3;
-        mouthRef.current.scale.y = 0.6 + o * 1.5;
-        mouthRef.current.scale.x = 1.0 + e;
+        const speechValue = (Math.sin(t * 16) * 0.35 + Math.sin(t * 9) * 0.25 + 0.4);
+        mouthRef.current.scale.y = 0.8 + speechValue * 1.6;
+        mouthRef.current.scale.x = 1.1 - speechValue * 0.3;
+        mouthRef.current.rotation.x = Math.PI; // Keep the U shape upright when talking
       } else {
-        // Sweet gentle smile
-        mouthRef.current.scale.y = THREE.MathUtils.lerp(mouthRef.current.scale.y, 0.7, 0.08);
-        mouthRef.current.scale.x = THREE.MathUtils.lerp(mouthRef.current.scale.x, 1.4, 0.08);
+        // Sweet gentle humble smile
+        mouthRef.current.scale.y = THREE.MathUtils.lerp(mouthRef.current.scale.y, 0.8, 0.08);
+        mouthRef.current.scale.x = THREE.MathUtils.lerp(mouthRef.current.scale.x, 1.2, 0.08);
+        mouthRef.current.rotation.x = Math.PI; // Inverted semi-circle creates a 'U' smile
       }
     }
 
@@ -145,59 +146,66 @@ export const Bush3D = forwardRef<THREE.Group, Bush3DProps>(({ windPower, isSpeak
         <sphereGeometry args={[0.03, 8, 8]} />
       </mesh>
 
-      {/* ---- FACE (cute & humble) ---- */}
-      {/* Left eye - big, round, sparkly */}
-      <group ref={leftEyeGroupRef} position={[-0.13, 0.42, 0.53]}>
+      {/* Left eye - massive, round, very sparkly - pushed forward for visibility */}
+      <group ref={leftEyeGroupRef} position={[-0.14, 0.42, 1.0]}>
         <mesh material={eyeWhiteMaterial}>
-          <sphereGeometry args={[0.08, 16, 16]} />
+          <sphereGeometry args={[0.085, 16, 16]} />
         </mesh>
-        {/* Large pupil looking up at tree */}
-        <mesh position={[-0.01, 0.01, 0.055]} material={pupilMaterial}>
-          <sphereGeometry args={[0.045, 12, 12]} />
+        {/* Large pupil - looking up and left at Tree */}
+        <mesh position={[-0.015, 0.025, 0.055]} material={pupilMaterial} scale={[1, 1.1, 1]}>
+          <sphereGeometry args={[0.055, 12, 12]} />
         </mesh>
-        {/* Sparkle highlights */}
-        <mesh position={[0.02, 0.025, 0.07]} material={pupilHighlight}>
-          <sphereGeometry args={[0.015, 6, 6]} />
+        {/* Main large sparkle */}
+        <mesh position={[0.005, 0.045, 0.09]} material={pupilHighlight}>
+          <sphereGeometry args={[0.02, 12, 12]} />
         </mesh>
-        <mesh position={[-0.015, -0.01, 0.075]} material={pupilHighlight}>
-          <sphereGeometry args={[0.008, 6, 6]} />
+        {/* Inner small sparkles */}
+        <mesh position={[-0.03, -0.005, 0.095]} material={pupilHighlight}>
+          <sphereGeometry args={[0.01, 8, 8]} />
+        </mesh>
+        <mesh position={[0.02, 0.0, 0.09]} material={pupilHighlight}>
+          <sphereGeometry args={[0.006, 6, 6]} />
         </mesh>
       </group>
 
-      {/* Right eye */}
-      <group ref={rightEyeGroupRef} position={[0.13, 0.42, 0.53]}>
+      {/* Right eye - pushed forward */}
+      <group ref={rightEyeGroupRef} position={[0.14, 0.42, 1.0]}>
         <mesh material={eyeWhiteMaterial}>
-          <sphereGeometry args={[0.08, 16, 16]} />
+          <sphereGeometry args={[0.085, 16, 16]} />
         </mesh>
-        <mesh position={[-0.01, 0.01, 0.055]} material={pupilMaterial}>
-          <sphereGeometry args={[0.045, 12, 12]} />
+        {/* Pupil looking up and left at Tree */}
+        <mesh position={[-0.015, 0.025, 0.055]} material={pupilMaterial} scale={[1, 1.1, 1]}>
+          <sphereGeometry args={[0.055, 12, 12]} />
         </mesh>
-        <mesh position={[0.02, 0.025, 0.07]} material={pupilHighlight}>
-          <sphereGeometry args={[0.015, 6, 6]} />
+        <mesh position={[0.005, 0.045, 0.09]} material={pupilHighlight}>
+          <sphereGeometry args={[0.02, 12, 12]} />
         </mesh>
-        <mesh position={[-0.015, -0.01, 0.075]} material={pupilHighlight}>
-          <sphereGeometry args={[0.008, 6, 6]} />
+        <mesh position={[-0.03, -0.005, 0.095]} material={pupilHighlight}>
+          <sphereGeometry args={[0.01, 8, 8]} />
+        </mesh>
+        <mesh position={[0.02, 0.0, 0.09]} material={pupilHighlight}>
+          <sphereGeometry args={[0.006, 6, 6]} />
         </mesh>
       </group>
 
-      {/* Gentle humble eyebrows */}
-      <mesh ref={leftBrowRef} position={[-0.13, 0.56, 0.53]} rotation={[0, 0, -0.15]} material={browMaterial}>
+      {/* Gentle humble eyebrows - pushed forward */}
+      <mesh ref={leftBrowRef} position={[-0.13, 0.56, 1.0]} rotation={[0, 0, -0.15]} material={browMaterial}>
         <boxGeometry args={[0.1, 0.018, 0.02]} />
       </mesh>
-      <mesh ref={rightBrowRef} position={[0.13, 0.56, 0.53]} rotation={[0, 0, 0.15]} material={browMaterial}>
+      <mesh ref={rightBrowRef} position={[0.13, 0.56, 1.0]} rotation={[0, 0, 0.15]} material={browMaterial}>
         <boxGeometry args={[0.1, 0.018, 0.02]} />
       </mesh>
 
-      {/* Mouth - sweet small circle */}
-      <mesh ref={mouthRef} position={[0, 0.3, 0.56]} material={mouthMaterial}>
-        <sphereGeometry args={[0.04, 12, 12]} />
+      {/* Mouth - sweet small cute torus smile - pushed forward */}
+      <mesh ref={mouthRef} position={[0, 0.28, 1.03]} material={mouthMaterial} rotation={[Math.PI, 0, 0]}>
+        <torusGeometry args={[0.035, 0.015, 16, 24, Math.PI]} />
       </mesh>
 
-      {/* Blush circles - bigger and softer */}
-      <mesh ref={blushLeftRef} position={[-0.2, 0.34, 0.52]} material={blushMaterial}>
+      {/* Blush circles - pushed forward */}
+      <mesh ref={blushLeftRef} position={[-0.2, 0.34, 0.99]} material={blushMaterial}>
         <circleGeometry args={[0.05, 16]} />
       </mesh>
-      <mesh ref={blushRightRef} position={[0.2, 0.34, 0.52]} material={blushMaterial}>
+      <mesh ref={blushRightRef} position={[0.2, 0.34, 0.99]} material={blushMaterial}>
         <circleGeometry args={[0.05, 16]} />
       </mesh>
     </group>

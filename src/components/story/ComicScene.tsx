@@ -19,7 +19,15 @@ export const ComicScene: React.FC = () => {
   const { phase, triggerSnap } = useStory();
 
   return (
-    <div className="relative w-full h-full overflow-hidden border-[3px] border-foreground" style={{ boxShadow: 'var(--comic-shadow)' }}>
+    <motion.div 
+      className="relative w-full h-full overflow-hidden border-[3px] border-foreground" 
+      style={{ boxShadow: 'var(--comic-shadow)' }}
+      animate={triggerSnap ? { 
+        x: [-20, 20, -15, 15, -10, 10, -5, 5, 0], 
+        y: [20, -20, 15, -15, 10, -10, 5, -5, 0] 
+      } : {}}
+      transition={{ duration: 0.6, ease: "easeInOut" }}
+    >
       {/* 3D Scene */}
       <div className="absolute inset-0">
         <Scene3D />
@@ -52,6 +60,6 @@ export const ComicScene: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 };

@@ -18,10 +18,12 @@ export const SpeechBubble: React.FC<SpeechBubbleProps> = ({ text, character, isS
       <motion.div
         key={text}
         className={`
-          relative z-50 max-w-[90%] md:max-w-md mx-auto
+          absolute z-50 max-w-[80%] md:max-w-sm
           ${isNarrator
-            ? 'bg-secondary border-[3px] border-foreground px-5 py-3'
-            : 'bg-comic-white border-[3px] border-foreground px-5 py-4 speech-bubble-tail'
+            ? 'top-8 left-1/2 -translate-x-1/2 bg-secondary border-[3px] border-foreground px-5 py-3'
+            : isTree
+            ? 'top-[15%] left-[5%] md:left-[15%] bg-comic-white border-[3px] border-foreground px-5 py-4 speech-bubble-tail-left'
+            : 'top-[35%] right-[5%] md:right-[20%] bg-comic-white border-[3px] border-foreground px-5 py-4 speech-bubble-tail-bottom'
           }
         `}
         style={{ boxShadow: 'var(--comic-shadow)' }}

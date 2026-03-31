@@ -124,7 +124,7 @@
   20% { opacity: 0; }
 }
 
-/* Speech bubble tail */
+/* Speech bubble tail - default */
 .speech-bubble-tail::after {
   content: '';
   position: absolute;
@@ -147,6 +147,118 @@
   border-left: 15px solid transparent;
   border-right: 15px solid transparent;
   border-top: 24px solid hsl(var(--comic-black));
+  z-index: -1;
+}
+
+/* Speech bubble tail pointing left for Tree */
+.speech-bubble-tail-left::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -18px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 20px solid hsl(var(--comic-white));
+}
+
+.speech-bubble-tail-left::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -22px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
+  border-left: 24px solid hsl(var(--comic-black));
+  z-index: -1;
+}
+
+/* Speech bubble tail pointing right for Bramble */
+.speech-bubble-tail-right::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -18px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-right: 20px solid hsl(var(--comic-white));
+}
+
+.speech-bubble-tail-right::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -22px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
+  border-right: 24px solid hsl(var(--comic-black));
+  z-index: -1;
+}
+
+/* Speech bubble tail pointing DOWN for Bramble/Bush */
+.speech-bubble-tail-bottom::after {
+  content: '';
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 20px solid hsl(var(--comic-white));
+}
+
+.speech-bubble-tail-bottom::before {
+  content: '';
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 24px solid hsl(var(--comic-black));
+  z-index: -1;
+}
+
+/* Speech bubble tail pointing UP for characters below */
+.speech-bubble-tail-top::after {
+  content: '';
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 20px solid hsl(var(--comic-white));
+}
+
+.speech-bubble-tail-top::before {
+  content: '';
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 24px solid hsl(var(--comic-black));
   z-index: -1;
 }
 

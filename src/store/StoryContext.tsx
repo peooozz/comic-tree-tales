@@ -10,6 +10,7 @@ interface StoryState {
   dialogueText: string;
   triggerSnap: boolean;
   isSpeaking: boolean;
+  setWindPower: (val: number) => void;
   nextStep: () => void;
   resetStory: () => void;
 }
@@ -22,6 +23,7 @@ const defaultState: StoryState = {
   dialogueText: '',
   triggerSnap: false,
   isSpeaking: false,
+  setWindPower: () => {},
   nextStep: () => {},
   resetStory: () => {}
 };
@@ -96,43 +98,58 @@ export const StoryProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setPhase('INTRO');
         setWindPower(0);
         setTriggerSnap(false);
-        speak("High on a mountain, stood a tall, proud fir tree and a humble bramble bush.", "NARRATOR");
+        speak("High up on a mountain stood a tall, proud fir tree and a small, thorny bramble bush. 🌲", "NARRATOR");
         break;
       case 1:
-        setPhase('BOAST');
-        setWindPower(10);
-        speak("Look at you! So small, so weak. I stand tall against any wind!", "TREE");
+        setPhase('INTRO');
+        speak("Straight, strong, and towering above all, it looked down at the bramble.", "NARRATOR");
         break;
       case 2:
         setPhase('BOAST');
-        speak("I may be small, but I bend when the wind blows.", "BRAMBLE");
+        setWindPower(15);
+        speak("Look at you! So small, so weak. I stand tall against the strongest winds!", "TREE");
         break;
       case 3:
-        setPhase('STORM_BUILD');
-        setWindPower(50);
-        speak("A fierce storm arrived, twisting the wind.", "NARRATOR");
+        setPhase('BOAST');
+        speak("I may be small, but I bend when the wind blows.", "BRAMBLE");
         break;
       case 4:
-        setPhase('PEAK_STORM');
-        setWindPower(80);
-        speak("Bring it on! I... will... never... bend!", "TREE");
+        setPhase('STORM_BUILD');
+        setWindPower(55);
+        speak("One day, a fierce storm arrived. 🌪️ The winds howled and pushed against the mighty fir tree.", "NARRATOR");
         break;
       case 5:
+        setPhase('PEAK_STORM');
+        setWindPower(85);
+        speak("I will never bend!", "TREE");
+        break;
+      case 6:
+        setPhase('PEAK_STORM');
+        setWindPower(95);
+        speak("The storm grew stronger… and stronger…", "NARRATOR");
+        break;
+      case 7:
         setPhase('SNAP');
         setWindPower(100);
         setTriggerSnap(true);
-        speak("CRACK! The rigid fir tree snapped. The humble bramble survived.", "NARRATOR");
+        speak("CRACK! ⚡ The rigid fir tree snapped and fell.", "NARRATOR");
         break;
-      case 6:
+      case 8:
         setPhase('AFTERMATH');
-        setWindPower(0);
-        speak("Is strength always about being stiff? Sometimes, true strength is knowing how to bend.", "NARRATOR");
+        setWindPower(10);
+        setTriggerSnap(false); // Hide the CRACK! text
+        speak("Down below, the bramble swayed, bent, and survived. When the storm passed, only the humble bramble remained.", "NARRATOR");
+        break;
+      case 9:
+        setPhase('AFTERMATH');
+        setTriggerSnap(false);
+        speak("What happens if something refuses to bend? Is strength always about being stiff?", "NARRATOR");
         break;
     }
   }, [speak]);
 
   const nextStep = useCallback(() => {
-    if (step < 6) executeStep(step + 1);
+    if (step < 9) executeStep(step + 1);
   }, [step, executeStep]);
 
   const resetStory = useCallback(() => {
@@ -150,7 +167,7 @@ export const StoryProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <StoryContext.Provider value={{
       step, windPower, phase, activeCharacter, dialogueText,
-      triggerSnap, isSpeaking, nextStep, resetStory
+      triggerSnap, isSpeaking, setWindPower, nextStep, resetStory
     }}>
       {children}
     </StoryContext.Provider>
