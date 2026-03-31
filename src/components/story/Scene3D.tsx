@@ -1,68 +1,113 @@
-import React, { useMemo } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import React, { useMemo, useRef, forwardRef } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { useStory } from '../../store/StoryContext';
 import { Tree3D } from './Tree3D';
 import { Bush3D } from './Bush3D';
 import * as THREE from 'three';
 
-const Ground: React.FC<{ isStormy: boolean }> = ({ isStormy }) => {
-  const material = useMemo(() => new THREE.MeshStandardMaterial({
-    color: isStormy ? '#2E7D32' : '#4CAF50', roughness: 1
+const Ground = forwardRef<THREE.Mesh, { isStormy: boolean }>(({ isStormy }, _ref) => {
+  const grassMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: isStormy ? '#2E7D32' : '#66BB6A', roughness: 0.95
   }), [isStormy]);
-
-  return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.2, 0]} material={material}>
-      <planeGeometry args={[20, 20]} />
-    </mesh>
-  );
-};
-
-const Mountains: React.FC<{ isStormy: boolean }> = ({ isStormy }) => {
-  const material = useMemo(() => new THREE.MeshStandardMaterial({
-    color: isStormy ? '#37474F' : '#5D4037', roughness: 0.9
-  }), [isStormy]);
-  const snowMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#E0E0E0', roughness: 0.7
+  const dirtMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: '#5D4037', roughness: 1
   }), []);
 
   return (
-    <group position={[0, -1, -8]}>
-      <mesh position={[-3, 1, 0]} material={material}>
-        <coneGeometry args={[3, 5, 6]} />
+    <group>
+      {/* Main ground */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.2, 0]} material={grassMaterial}>
+        <planeGeometry args={[25, 25]} />
       </mesh>
-      <mesh position={[-3, 3.2, 0]} material={snowMaterial}>
-        <coneGeometry args={[0.8, 1.2, 6]} />
+      {/* Dirt path between them */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.18, 0.5]} material={dirtMaterial}>
+        <planeGeometry args={[6, 1.5]} />
       </mesh>
-      <mesh position={[2, 0.5, -1]} material={material}>
+      {/* Small grass tufts */}
+      {[-3, -1, 0.5, 2, 3.5].map((x, i) => (
+        <mesh key={i} position={[x, -2.1, 1]} rotation={[-0.2, Math.random(), 0]}>
+          <coneGeometry args={[0.05, 0.15, 4]} />
+          <meshStandardMaterial color={isStormy ? '#33691E' : '#43A047'} />
+        </mesh>
+      ))}
+    </group>
+  );
+});
+Ground.displayName = 'Ground';
+
+const Mountains = forwardRef<THREE.Group, { isStormy: boolean }>(({ isStormy }, _ref) => {
+  const material = useMemo(() => new THREE.MeshStandardMaterial({
+    color: isStormy ? '#37474F' : '#6D4C41', roughness: 0.9
+  }), [isStormy]);
+  const snowMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: isStormy ? '#B0BEC5' : '#ECEFF1', roughness: 0.6
+  }), [isStormy]);
+  const farMountainMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: isStormy ? '#263238' : '#8D6E63', roughness: 0.95
+  }), [isStormy]);
+
+  return (
+    <group position={[0, -1.5, -10]}>
+      {/* Far mountains */}
+      <mesh position={[-6, 1.5, -4]} material={farMountainMat}>
+        <coneGeometry args={[5, 7, 6]} />
+      </mesh>
+      <mesh position={[7, 1, -5]} material={farMountainMat}>
+        <coneGeometry args={[4, 6, 6]} />
+      </mesh>
+      {/* Near mountains */}
+      <mesh position={[-3, 1.2, 0]} material={material}>
+        <coneGeometry args={[3.5, 5.5, 8]} />
+      </mesh>
+      <mesh position={[-3, 3.5, 0]} material={snowMaterial}>
+        <coneGeometry args={[1, 1.5, 8]} />
+      </mesh>
+      <mesh position={[3, 0.8, -1]} material={material}>
+        <coneGeometry args={[3, 4.5, 8]} />
+      </mesh>
+      <mesh position={[3, 2.8, -1]} material={snowMaterial}>
+        <coneGeometry args={[0.8, 1.2, 8]} />
+      </mesh>
+      <mesh position={[8, 1, -2]} material={material}>
         <coneGeometry args={[2.5, 4, 6]} />
-      </mesh>
-      <mesh position={[2, 2.3, -1]} material={snowMaterial}>
-        <coneGeometry args={[0.6, 1, 6]} />
-      </mesh>
-      <mesh position={[6, 0.8, -2]} material={material}>
-        <coneGeometry args={[2, 3.5, 6]} />
       </mesh>
     </group>
   );
-};
+});
+Mountains.displayName = 'Mountains';
 
-const RainParticles: React.FC<{ intensity: number }> = ({ intensity }) => {
-  const count = Math.floor(intensity * 2);
+const AnimatedRain: React.FC<{ intensity: number }> = ({ intensity }) => {
+  const ref = useRef<THREE.Points>(null);
+  const count = Math.min(Math.floor(intensity * 3), 300);
+
   const positions = useMemo(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 10;
-      pos[i * 3 + 1] = Math.random() * 8 - 2;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 6;
+      pos[i * 3] = (Math.random() - 0.5) * 12;
+      pos[i * 3 + 1] = Math.random() * 10 - 2;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 8;
     }
     return pos;
   }, [count]);
 
+  useFrame(() => {
+    if (!ref.current || intensity < 30) return;
+    const posArr = ref.current.geometry.attributes.position.array as Float32Array;
+    for (let i = 0; i < count; i++) {
+      posArr[i * 3 + 1] -= 0.15 + Math.random() * 0.05;
+      posArr[i * 3] -= 0.02; // wind drift
+      if (posArr[i * 3 + 1] < -2.5) {
+        posArr[i * 3 + 1] = 6 + Math.random() * 2;
+        posArr[i * 3] = (Math.random() - 0.5) * 12;
+      }
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
+  });
+
   if (intensity < 30) return null;
 
   return (
-    <points>
+    <points ref={ref}>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
@@ -71,8 +116,42 @@ const RainParticles: React.FC<{ intensity: number }> = ({ intensity }) => {
           itemSize={3}
         />
       </bufferGeometry>
-      <pointsMaterial color="#90CAF9" size={0.03} transparent opacity={0.6} />
+      <pointsMaterial color="#90CAF9" size={0.04} transparent opacity={0.7} />
     </points>
+  );
+};
+
+const Clouds: React.FC<{ isStormy: boolean }> = ({ isStormy }) => {
+  const cloudMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: isStormy ? '#37474F' : '#ECEFF1',
+    transparent: true,
+    opacity: isStormy ? 0.9 : 0.7,
+    roughness: 1,
+  }), [isStormy]);
+
+  const groupRef = useRef<THREE.Group>(null);
+  useFrame((state) => {
+    if (groupRef.current) {
+      groupRef.current.position.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.5;
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={[0, 4, -6]}>
+      {[[-3, 0, 0], [0, 0.3, -1], [3, -0.2, 0.5], [-1.5, 0.5, -2], [4, 0.1, -1]].map(([x, y, z], i) => (
+        <group key={i} position={[x!, y!, z!]}>
+          <mesh material={cloudMaterial}>
+            <sphereGeometry args={[0.8, 8, 8]} />
+          </mesh>
+          <mesh position={[0.5, -0.1, 0]} material={cloudMaterial}>
+            <sphereGeometry args={[0.6, 8, 8]} />
+          </mesh>
+          <mesh position={[-0.4, -0.1, 0.1]} material={cloudMaterial}>
+            <sphereGeometry args={[0.5, 8, 8]} />
+          </mesh>
+        </group>
+      ))}
+    </group>
   );
 };
 
@@ -82,30 +161,38 @@ export const Scene3D: React.FC = () => {
   const isStormy = phase === 'STORM_BUILD' || phase === 'PEAK_STORM' || phase === 'SNAP';
   const isAftermath = phase === 'AFTERMATH';
 
-  const skyColor = isStormy ? '#263238' : isAftermath ? '#FFE0B2' : '#87CEEB';
-  const ambientIntensity = isStormy ? 0.3 : 0.6;
-  const directionalIntensity = isStormy ? 0.4 : 1;
+  const skyColor = isStormy ? '#1a237e' : isAftermath ? '#FFE0B2' : '#81D4FA';
+  const ambientIntensity = isStormy ? 0.25 : 0.55;
+  const directionalIntensity = isStormy ? 0.3 : 0.9;
 
   return (
     <Canvas
-      camera={{ position: [0, 0.5, 5], fov: 50 }}
+      camera={{ position: [0, 0.5, 6], fov: 45 }}
       style={{ background: skyColor, transition: 'background 1.5s ease' }}
+      shadows
     >
+      <fog attach="fog" args={[isStormy ? '#1a237e' : '#81D4FA', 10, 25]} />
       <ambientLight intensity={ambientIntensity} />
       <directionalLight
-        position={[3, 5, 2]}
+        position={[4, 6, 3]}
         intensity={directionalIntensity}
         castShadow
-        color={isStormy ? '#B0BEC5' : '#FFF9C4'}
+        color={isStormy ? '#90CAF9' : '#FFF9C4'}
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
       />
+      {/* Rim light */}
+      <directionalLight position={[-3, 4, -2]} intensity={0.2} color="#B3E5FC" />
       {isStormy && (
-        <pointLight position={[0, 5, 0]} intensity={0.5} color="#90CAF9" />
+        <pointLight position={[0, 6, 0]} intensity={0.4} color="#7986CB" distance={15} />
       )}
 
       <Ground isStormy={isStormy} />
       <Mountains isStormy={isStormy} />
-      <RainParticles intensity={windPower} />
+      <Clouds isStormy={isStormy} />
+      <AnimatedRain intensity={windPower} />
 
+      {/* Tree on LEFT side */}
       <Tree3D
         windPower={windPower}
         isSpeaking={isSpeaking}
@@ -113,18 +200,13 @@ export const Scene3D: React.FC = () => {
         snapped={triggerSnap}
         isStormy={isStormy}
       />
+
+      {/* Bush on RIGHT side */}
       <Bush3D
         windPower={windPower}
         isSpeaking={isSpeaking}
         isActive={activeCharacter === 'BRAMBLE'}
         isStormy={isStormy}
-      />
-
-      <OrbitControls
-        enableZoom={false}
-        enablePan={false}
-        maxPolarAngle={Math.PI / 2.2}
-        minPolarAngle={Math.PI / 4}
       />
     </Canvas>
   );
