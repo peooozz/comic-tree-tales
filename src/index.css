@@ -1,95 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 45 30% 96%;
+    --foreground: 0 0% 10%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 45 40% 94%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 10%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 0 0% 10%;
+    --primary-foreground: 45 30% 96%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 196 100% 47%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 45 20% 90%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 50 100% 50%;
+    --accent-foreground: 0 0% 10%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 340 100% 47%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 0 0% 10%;
+    --input: 0 0% 10%;
+    --ring: 196 100% 47%;
 
-    --radius: 0.5rem;
+    --radius: 0px;
+
+    /* Comic-specific tokens */
+    --comic-yellow: 52 100% 50%;
+    --comic-cyan: 196 100% 47%;
+    --comic-magenta: 340 100% 47%;
+    --comic-black: 0 0% 10%;
+    --comic-white: 0 0% 100%;
+    --comic-green: 120 60% 35%;
+    --comic-red: 0 80% 50%;
+
+    --comic-border: 3px solid hsl(0 0% 10%);
+    --comic-shadow: 4px 4px 0px 0px hsl(0 0% 10%);
+    --comic-shadow-sm: 2px 2px 0px 0px hsl(0 0% 10%);
+
+    --font-comic-display: 'Bangers', cursive;
+    --font-comic-body: 'Comic Neue', cursive;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
@@ -101,5 +70,106 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-comic-body);
   }
+}
+
+/* Comic halftone pattern */
+.comic-halftone {
+  background-image: radial-gradient(circle, hsl(var(--comic-black) / 0.06) 1px, transparent 1px);
+  background-size: 6px 6px;
+}
+
+/* Rain animation */
+@keyframes rain-fall {
+  0% { transform: translateY(-100vh) translateX(0); opacity: 0.7; }
+  100% { transform: translateY(100vh) translateX(-20px); opacity: 0; }
+}
+
+.rain-drop {
+  animation: rain-fall linear infinite;
+}
+
+/* Wind sway for tree */
+@keyframes tree-sway {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(2deg); }
+  75% { transform: rotate(-2deg); }
+}
+
+@keyframes tree-sway-strong {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(8deg); }
+  75% { transform: rotate(-5deg); }
+}
+
+@keyframes bush-sway {
+  0%, 100% { transform: rotate(0deg) scaleX(1); }
+  25% { transform: rotate(3deg) scaleX(0.95); }
+  75% { transform: rotate(-3deg) scaleX(1.05); }
+}
+
+@keyframes bush-sway-strong {
+  0%, 100% { transform: rotate(0deg) scaleX(1); }
+  25% { transform: rotate(12deg) scaleX(0.85); }
+  75% { transform: rotate(-8deg) scaleX(1.1); }
+}
+
+/* Lightning flash */
+@keyframes lightning-flash {
+  0%, 100% { opacity: 0; }
+  5% { opacity: 0.8; }
+  10% { opacity: 0; }
+  15% { opacity: 1; }
+  20% { opacity: 0; }
+}
+
+/* Speech bubble tail */
+.speech-bubble-tail::after {
+  content: '';
+  position: absolute;
+  bottom: -18px;
+  left: 30px;
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 20px solid hsl(var(--comic-white));
+}
+
+.speech-bubble-tail::before {
+  content: '';
+  position: absolute;
+  bottom: -22px;
+  left: 27px;
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 24px solid hsl(var(--comic-black));
+  z-index: -1;
+}
+
+/* Crack effect text */
+@keyframes crack-shake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-4px, -2px) rotate(-2deg); }
+  20% { transform: translate(4px, 2px) rotate(2deg); }
+  30% { transform: translate(-2px, 4px) rotate(-1deg); }
+  40% { transform: translate(2px, -4px) rotate(1deg); }
+  50% { transform: translate(-4px, 2px) rotate(-2deg); }
+  60% { transform: translate(4px, -2px) rotate(2deg); }
+  70% { transform: translate(-2px, -4px) rotate(-1deg); }
+  80% { transform: translate(2px, 4px) rotate(1deg); }
+  90% { transform: translate(-4px, -2px) rotate(-2deg); }
+}
+
+.crack-text {
+  animation: crack-shake 0.3s ease-in-out 3;
+}
+
+/* Comic panel border glow on active */
+@keyframes panel-pulse {
+  0%, 100% { box-shadow: var(--comic-shadow); }
+  50% { box-shadow: var(--comic-shadow), 0 0 20px hsl(var(--comic-cyan) / 0.4); }
 }
